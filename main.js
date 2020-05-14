@@ -5,15 +5,23 @@
         padding: "1em"
     });
     $("<h1>").appendTo(h).text("文字列を画像データに変換します。");
-    var input_str = yaju1919.addInputText(h,{
+    var h1 = $("<div>").appendTo(h),
+        h2 = $("<div>").appendTo(h);
+    yaju1919.addTab(h,{
+        list: {
+            "文字列→画像": h1,
+            "画像→文字列": h2
+        }
+    });
+    $("<button>",{
+        text: "変換するボタン"
+    }).appendTo(h1).click(main);
+    var h_result = $("<div>").appendTo(h1);
+    var input_str = yaju1919.addInputText(h1,{
         title: "input",
         placeholder: "ここに変換したい文字列を入力",
         textarea: true
     });
-    $("<button>",{
-        text: "変換するボタン"
-    }).appendTo(h).click(main);
-    var h_result = $("<div>").appendTo(h);
     function main(){
         var ar = toASCII_array(escape256(input_str()));
         var width = Math.ceil(Math.sqrt(ar.length / 3));
@@ -60,12 +68,11 @@
             return String.fromCharCode(n);
         }).join('');
     }
-    $("<h1>").appendTo(h).text("画像データを文字列に変換します。");
-    $("<button>").appendTo(h).text("画像選択").click(function(){
+    $("<button>").appendTo(h2).text("画像選択").click(function(){
         inputFile.val('');
         inputFile.click();
     });
-    var h_result2 = $("<div>").appendTo(h);
+    var h_result2 = $("<div>").appendTo(h2);
     var inputFile = $("<input>").attr({
         type: "file"
     }).change(loadImg);
