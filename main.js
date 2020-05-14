@@ -91,7 +91,7 @@
         yaju1919.addInputText(h_result2.empty(),{
             id: "output",
             title: "output",
-            value: unescape256(toASCII_str(ctx.getImageData(0, 0, width, height))),
+            value: unescape256(toASCII_str(ctx.getImageData(0, 0, width, height).data)),
             textarea: true,
             readonly: true
         });
