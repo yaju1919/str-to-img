@@ -5,10 +5,11 @@
         padding: "1em"
     });
     $("<h1>").appendTo(h).text("文字列を画像データに変換します。");
-    var input_str = yaju1919.addInputNumber(h,{
+    var input_str = yaju1919.addInputText(h,{
         id: "input_n",
         title: "input",
         placeholder: "ここに変換したい文字列を入力",
+        textarea: true
     });
     $("<button>",{
         text: "変換するボタン"
