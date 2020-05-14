@@ -58,7 +58,7 @@
     function toASCII_str(array){
         return array.map(function(n){
             return String.fromCharCode(n);
-        });
+        }).join('');
     }
     $("<h1>").appendTo(h).text("画像データを文字列に変換します。");
     $("<button>").appendTo(h).text("画像選択").click(function(){
