@@ -99,7 +99,6 @@
             ar.push(b);
         }
         yaju1919.addInputText(h_result2.empty(),{
-            id: "output",
             title: "output",
             value: unescape256(toASCII_str(ar)).replace(/\0+$/,''),
             textarea: true,
