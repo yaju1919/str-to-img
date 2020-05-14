@@ -6,7 +6,6 @@
     });
     $("<h1>").appendTo(h).text("文字列を画像データに変換します。");
     var input_str = yaju1919.addInputText(h,{
-        id: "input_n",
         title: "input",
         placeholder: "ここに変換したい文字列を入力",
         textarea: true
@@ -34,12 +33,12 @@
         }
         h_result.empty();
         $("<button>",{text:"ダウンロード"}).click(function(){
-            $("<a>",{
+            var a = $("<a>",{
                 href: cv[0].toDataURL("image/png"),
                 download: "data.png"
-            }).click();
+            })[0].click();
         }).appendTo(h_result.empty());
-        cv.appendTo(h_result);
+        h_result.append("<br>").append(cv);
     }
     function escape256(str){
         return str.split('').map(function(c){
@@ -59,6 +58,42 @@
     function toASCII_str(array){
         return array.map(function(n){
             return String.fromCharCode(n);
+        });
+    }
+    $("<h1>").appendTo(h).text("画像データを文字列に変換します。");
+    $("<button>").appendTo(h).text("画像選択").click(function(){
+        inputFile.val('');
+        inputFile.click();
+    });
+    var h_result2 = $("<div>").appendTo(h);
+    var inputFile = $("<input>").attr({
+        type: "file"
+    }).change(loadImg);
+    function loadImg(e){
+        var file = e.target.files[0];
+        if(!file) return;
+        var blobUrl = window.URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function(){
+            main2(img);
+        };
+        img.src = blobUrl;
+    }
+    function main2(img){
+        var width = img.width,
+            height = img.height;
+        var cv = $("<canvas>").attr({
+            width: width,
+            height: height
+        });
+        var ctx = cv.get(0).getContext('2d');
+        ctx.drawImage(img,0,0);
+        yaju1919.addInputText(h_result2.empty(),{
+            id: "output",
+            title: "output",
+            value: unescape256(toASCII_str(ctx.getImageData(0, 0, width, height))),
+            textarea: true,
+            readonly: true
         });
     }
 })();
