@@ -16,19 +16,19 @@
     var h_result = $("<div>").appendTo(h);
     function main(){
         var ar = toASCII_array(escape256(input_str()));
-        var width = Math.ceil(Math.sqrt(ar.length / 4));
+        var width = Math.ceil(Math.sqrt(ar.length / 3));
         var cv = $("<canvas>").attr({
             width: width,
             height: width
         });
         var ctx = cv[0].getContext("2d");
-        for(var i = 0; i < ar.length; i += 4){
-            var x = (i / 4) % width,
-                y = Math.floor((i / 4) / width);
-            var rgba = [ar[i],ar[i+1],ar[i+2],ar[i+3]].map(function(v){
+        for(var i = 0; i < ar.length; i += 3){
+            var x = (i / 3) % width,
+                y = Math.floor((i / 3) / width);
+            var rgb = [ar[i],ar[i+1],ar[i+2]].map(function(v){
                 return v ? v : 0;
             });
-            ctx.fillStyle = `rgba(${rgba[0]},${rgba[1]},${rgba[2]},${rgba[3]})`;
+            ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},1)`;
             ctx.fillRect(x, y, 1, 1);
         }
         h_result.empty();
@@ -88,10 +88,20 @@
         });
         var ctx = cv.get(0).getContext('2d');
         ctx.drawImage(img,0,0);
+        var data = ctx.getImageData(0, 0, width, height).data;
+        var ar = [];
+        for(var i = 0; i < data.length; i += 4){
+            var r = data[i],
+                g = data[i + 1],
+                b = data[i + 2];
+            ar.push(r);
+            ar.push(g);
+            ar.push(b);
+        }
         yaju1919.addInputText(h_result2.empty(),{
             id: "output",
             title: "output",
-            value: unescape256(toASCII_str(ctx.getImageData(0, 0, width, height).data)),
+            value: unescape256(toASCII_str(ar)),
             textarea: true,
             readonly: true
         });
