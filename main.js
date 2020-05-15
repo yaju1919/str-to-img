@@ -23,18 +23,26 @@
         textarea: true
     });
     function main(){
-        var hex = toHex(input_str());
-        var width = Math.ceil(Math.sqrt(hex.length / 8));
-        var HEX = (hex + yaju1919.repeat('0', width)).slice(0, width * width );
+        var str = input_str();
+        var width = Math.ceil(Math.sqrt(str.length / 1.5));
         var cv = $("<canvas>").attr({
             width: width,
             height: width
         });
         var ctx = cv[0].getContext("2d");
         var imgData = ctx.getImageData(0, 0, width, width);
-        var px = imgData.data;
-        for(var i = 0; i < hex.length; i++){
-            imgData[i] = parseInt(HEX.slice(i * 2, i * 2 + 1), 16);
+        var hex = [];
+        str.split('').forEach(function(c,i){
+            var ar = ("0000" + c.charCodeAt().toString(16)).slice(-4).match(/.{2}/g);
+            hex.push(ar[0]);
+            hex.push(ar[1]);
+        });
+        var ww4 = width * width * 4;
+        for(var i = 0; i < ww4; i += 4){
+            for(var o = 0; o < 3; o++){
+                imgData.data[i + o] = parseInt(hex.shift(), 16) || 0;
+            }
+            imgData.data[i + 3] = 255; // 透過を指定するとputImageDataで画素値が変わる現象がある
         }
         ctx.putImageData(imgData, 0, 0);
         h_result.empty();
@@ -45,16 +53,6 @@
             })[0].click();
         }).appendTo(h_result.empty());
         h_result.append("<br>").append(cv);
-    }
-    function toHex(str){ // 文字列→16進数
-        return str.split('').map(function(c){
-            return str.charCodeAt().toString(16);
-        }).join('');
-    }
-    function toStr(str){ // 16進数→文字列
-        return str.match(/.{4}/g).map(function(s){
-            String.fromCharCode(parseInt(s, 16));
-        }).join('');
     }
     $("<button>").appendTo(h2).text("画像選択").click(function(){
         inputFile.val('');
@@ -67,7 +65,7 @@
     function loadImg(e){
         var file = e.target.files[0];
         if(!file) return;
-        var blobUrl = window.URL.createObjectURL(file);
+        var blobUrl = URL.createObjectURL(file);
         var img = new Image();
         img.onload = function(){
             main2(img);
@@ -82,16 +80,22 @@
             height: height
         });
         var ctx = cv.get(0).getContext('2d');
-        var imgData = ctx.getImageData(0, 0, width, width);
-        var px = imgData.data;
         ctx.drawImage(img,0,0);
-        var hex = '';
-        for(var i = 0; i < px.length; i++){
-            hex += px[i].toString(16);
+        var imgData = ctx.getImageData(0, 0, width, height),
+            data = imgData.data;
+        var wh4 = width * height * 4, hex = [];
+        for(var i = 0; i < wh4; i += 4){
+            for(var o = 0; o < 3; o++){
+                hex.push(('00' + imgData.data[i + o].toString(16)).slice(-2));
+            }
+        }
+        var str = '';
+        while(hex.length){
+            str += String.fromCharCode(parseInt(hex.shift() + hex.shift(),16));
         }
         yaju1919.addInputText(h_result2.empty(),{
             title: "output",
-            value: toStr(hex).replace(/\0+$/,''),
+            value: str.replace(/\0+$/,''),
             textarea: true,
             readonly: true
         });
