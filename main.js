@@ -23,22 +23,20 @@
         textarea: true
     });
     function main(){
-        var ar = toASCII_array(escape256(input_str()));
-        var width = Math.ceil(Math.sqrt(ar.length / 3));
+        var hex = toHex(input_str());
+        var width = Math.ceil(Math.sqrt(hex.length / 8));
+        var HEX = (hex + yaju1919.repeat('0', width)).slice(0, width * width );
         var cv = $("<canvas>").attr({
             width: width,
             height: width
         });
         var ctx = cv[0].getContext("2d");
-        for(var i = 0; i < ar.length; i += 3){
-            var x = (i / 3) % width,
-                y = Math.floor((i / 3) / width);
-            var rgb = [ar[i],ar[i+1],ar[i+2]].map(function(v){
-                return v ? v : 0;
-            });
-            ctx.fillStyle = `rgba(${rgb[0]},${rgb[1]},${rgb[2]},1)`;
-            ctx.fillRect(x, y, 1, 1);
+        var imgData = ctx.getImageData(0, 0, width, width);
+        var px = imgData.data;
+        for(var i = 0; i < hex.length; i++){
+            imgData[i] = parseInt(HEX.slice(i * 2, i * 2 + 1), 16);
         }
+        ctx.putImageData(imgData, 0, 0);
         h_result.empty();
         $("<button>",{text:"ダウンロード"}).click(function(){
             var a = $("<a>",{
@@ -48,24 +46,14 @@
         }).appendTo(h_result.empty());
         h_result.append("<br>").append(cv);
     }
-    function escape256(str){
+    function toHex(str){ // 文字列→16進数
         return str.split('').map(function(c){
-            return 255 < c.charCodeAt() ? escape(c) : c;
+            return str.charCodeAt().toString(16);
         }).join('');
     }
-    function unescape256(str){
-        return str.replace(/%u[0-9A-F]{4}/g,function(s){
-            return unescape(s);
-        });
-    }
-    function toASCII_array(str){
-        return str.split('').map(function(c){
-            return c.charCodeAt();
-        });
-    }
-    function toASCII_str(array){
-        return array.map(function(n){
-            return String.fromCharCode(n);
+    function toStr(str){ // 16進数→文字列
+        return str.match(/.{4}/g).map(function(s){
+            String.fromCharCode(parseInt(s, 16));
         }).join('');
     }
     $("<button>").appendTo(h2).text("画像選択").click(function(){
@@ -94,20 +82,16 @@
             height: height
         });
         var ctx = cv.get(0).getContext('2d');
+        var imgData = ctx.getImageData(0, 0, width, width);
+        var px = imgData.data;
         ctx.drawImage(img,0,0);
-        var data = ctx.getImageData(0, 0, width, height).data;
-        var ar = [];
-        for(var i = 0; i < data.length; i += 4){
-            var r = data[i],
-                g = data[i + 1],
-                b = data[i + 2];
-            ar.push(r);
-            ar.push(g);
-            ar.push(b);
+        var hex = '';
+        for(var i = 0; i < px.length; i++){
+            hex += px[i].toString(16);
         }
         yaju1919.addInputText(h_result2.empty(),{
             title: "output",
-            value: unescape256(toASCII_str(ar)).replace(/\0+$/,''),
+            value: toStr(hex).replace(/\0+$/,''),
             textarea: true,
             readonly: true
         });
