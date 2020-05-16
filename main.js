@@ -23,26 +23,33 @@
         textarea: true
     });
     function main(){
-        var str = input_str();
-        var width = Math.ceil(Math.sqrt(str.length / 1.5));
+        var ar = [];
+        input_str().split('').forEach(function(c){
+            var n = c.charCodeAt();
+            if(n < 128) {
+                ar.push(n);
+            }
+            else {
+                ar.push(128);
+                ar.push((0xff00 & n) >> 8); // 前
+                ar.push((0xff & n)); // 後
+            }
+        });
+        console.log(ar);
+        var width = Math.ceil(Math.sqrt(ar.length / 3));
         var cv = $("<canvas>").attr({
             width: width,
             height: width
         });
         var ctx = cv[0].getContext("2d");
-        var imgData = ctx.getImageData(0, 0, width, width);
-        var hex = [];
-        str.split('').forEach(function(c,i){
-            var ar = ("0000" + c.charCodeAt().toString(16)).slice(-4).match(/.{2}/g);
-            hex.push(ar[0]);
-            hex.push(ar[1]);
-        });
-        var ww4 = width * width * 4;
-        for(var i = 0; i < ww4; i += 4){
+        var imgData = ctx.getImageData(0, 0, width, width),
+            cnt = 0;
+        for(var i = 0; i < ar.length; i++){
+            var i4 = i * 4;
             for(var o = 0; o < 3; o++){
-                imgData.data[i + o] = parseInt(hex.shift(), 16) || 0;
+                imgData.data[i4 + o] = ar[cnt++] || 0;
             }
-            imgData.data[i + 3] = 255; // 透過を指定するとputImageDataで画素値が変わる現象がある
+            imgData.data[i4 + 3] = 255; // 透過を指定するとputImageDataで画素値が変わる現象がある
         }
         ctx.putImageData(imgData, 0, 0);
         h_result.empty();
@@ -53,6 +60,16 @@
             })[0].click();
         }).appendTo(h_result.empty());
         h_result.append("<br>").append(cv);
+    }
+    function unescape256(str){
+        return str.replace(/%u[0-9A-F]{4}/g,function(s){
+            return unescape(s);
+        });
+    }
+    function toASCII_str(array){
+        return array.map(function(n){
+            return String.fromCharCode(n);
+        }).join('');
     }
     $("<button>").appendTo(h2).text("画像選択").click(function(){
         inputFile.val('');
@@ -65,7 +82,7 @@
     function loadImg(e){
         var file = e.target.files[0];
         if(!file) return;
-        var blobUrl = URL.createObjectURL(file);
+        var blobUrl = window.URL.createObjectURL(file);
         var img = new Image();
         img.onload = function(){
             main2(img);
@@ -81,17 +98,24 @@
         });
         var ctx = cv.get(0).getContext('2d');
         ctx.drawImage(img,0,0);
-        var imgData = ctx.getImageData(0, 0, width, height),
-            data = imgData.data;
-        var wh4 = width * height * 4, hex = [];
-        for(var i = 0; i < wh4; i += 4){
+        var data = ctx.getImageData(0, 0, width, height).data;
+        var ar = [];
+        for(var i = 0; i < data.length; i++){
+            var i4 = i * 4;
             for(var o = 0; o < 3; o++){
-                hex.push(('00' + imgData.data[i + o].toString(16)).slice(-2));
+                ar.push(data[i4 + o]);
             }
         }
         var str = '';
-        while(hex.length){
-            str += String.fromCharCode(parseInt(hex.shift() + hex.shift(),16));
+        for(var p = 0; p < ar.length; p++){
+            var n = ar[p];
+            if(n < 128){
+                str += String.fromCharCode(n);
+            }
+            else if(n === 128){
+                str += String.fromCharCode((ar[p + 1] << 8) + ar[p + 2]);
+                p += 2;
+            }
         }
         yaju1919.addInputText(h_result2.empty(),{
             title: "output",
