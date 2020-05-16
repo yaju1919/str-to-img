@@ -20,7 +20,8 @@
     var input_str = yaju1919.addInputText(h1,{
         title: "input",
         placeholder: "ここに変換したい文字列を入力",
-        textarea: true
+        textarea: true,
+        hankaku: false
     });
     function main(){
         var ar = [];
@@ -110,7 +111,8 @@
             title: "output",
             value: str.replace(/\0+$/,''),
             textarea: true,
-            readonly: true
+            readonly: true,
+            hankaku: false
         });
     }
 })();
