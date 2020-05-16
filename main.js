@@ -61,16 +61,6 @@
         }).appendTo(h_result.empty());
         h_result.append("<br>").append(cv);
     }
-    function unescape256(str){
-        return str.replace(/%u[0-9A-F]{4}/g,function(s){
-            return unescape(s);
-        });
-    }
-    function toASCII_str(array){
-        return array.map(function(n){
-            return String.fromCharCode(n);
-        }).join('');
-    }
     $("<button>").appendTo(h2).text("画像選択").click(function(){
         inputFile.val('');
         inputFile.click();
