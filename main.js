@@ -35,7 +35,6 @@
                 ar.push((0xff & n)); // 後
             }
         });
-        console.log(ar);
         var width = Math.ceil(Math.sqrt(ar.length / 3));
         var cv = $("<canvas>").attr({
             width: width,
